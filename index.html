@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevvedUp Media</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0ece4;
+    --muted: #7a7570;
+    --accent: #e8ff47;
+    --accent-dim: rgba(232,255,71,0.12);
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 1.25rem 4rem;
+  }
+
+  /* subtle grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { width: 100%; max-width: 440px; position: relative; z-index: 1; }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 2.5rem; }
+
+  .logo-ring {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 1.5px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .tagline {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 2rem 0 0.75rem;
+  }
+
+  /* ── Link card ── */
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text);
+    margin-bottom: 10px;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .link-card:hover {
+    border-color: var(--border-hover);
+    background: #1c1c1c;
+    transform: translateY(-1px);
+  }
+  .link-card:active { transform: translateY(0); }
+
+  .card-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .card-text { flex: 1; }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .card-arrow {
+    font-size: 16px;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .link-card:hover .card-arrow { color: var(--text); transform: translateX(2px); }
+
+  /* accent card (payment) */
+  .link-card.accent {
+    background: var(--accent-dim);
+    border-color: rgba(232,255,71,0.25);
+  }
+  .link-card.accent .card-title { color: var(--accent); }
+  .link-card.accent:hover { background: rgba(232,255,71,0.18); border-color: rgba(232,255,71,0.45); }
+
+  /* ── Socials row ── */
+  .socials-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 0.5rem;
+  }
+
+  .social-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+    transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+  .social-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+    background: #1c1c1c;
+    transform: translateY(-2px);
+  }
+  .social-btn svg { width: 22px; height: 22px; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    margin-top: 2.5rem;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Fade-in stagger ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .header        { animation: fadeUp 0.5s ease both; animation-delay: 0.05s; }
+  .section-label { animation: fadeUp 0.5s ease both; }
+  .link-card, .socials-row { animation: fadeUp 0.5s ease both; }
+  .link-card:nth-child(1)  { animation-delay: 0.1s; }
+  .link-card:nth-child(2)  { animation-delay: 0.15s; }
+  .link-card:nth-child(3)  { animation-delay: 0.2s; }
+  .link-card:nth-child(4)  { animation-delay: 0.25s; }
+  .socials-row              { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="logo-ring">RM</div>
+    <p class="brand">RevvedUp Media</p>
+    <p class="tagline">Alat & kandungan untuk affiliat, pemasar & usahawan</p>
+  </div>
+
+  <!-- ── DEMO APPS ── -->
+  <p class="section-label">Cuba Aplikasi Kami</p>
+
+  <a class="link-card" href="YOUR_AFFISNAP_DEMO_LINK_HERE" target="_blank" rel="noopener">
+    <div class="card-icon" style="background: #1a1f2e;">⚡</div>
+    <div class="card-text">
+      <div class="card-title">AffiSnap — Demo Percuma</div>
+      <div class="card-sub">Penjana kandungan affiliat berkuasa AI</div>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <a class="link-card" href="YOUR_HOOKCRAFT_DEMO_LINK_HERE" target="_blank" rel="noopener">
+    <div class="card-icon" style="background: #1f1a2e;">🪝</div>
+    <div class="card-text">
+      <div class="card-title">HookCraft — Demo Percuma</div>
+      <div class="card-sub">Penjana hook AI untuk media sosial</div>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <!-- ── AFFILIATE ── -->
+  <p class="section-label">Pautan Affiliat</p>
+
+  <a class="link-card" href="YOUR_AFFILIATE_LINK_HERE" target="_blank" rel="noopener">
+    <div class="card-icon" style="background: #1a2a1a;">🔗</div>
+    <div class="card-text">
+      <div class="card-title">Pautan Affiliat Kami</div>
+      <div class="card-sub">Sokong kami — tiada kos tambahan untuk anda</div>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <!-- ── SOCIALS ── -->
+  <p class="section-label">Ikuti Kami</p>
+  <div class="socials-row">
+
+    <!-- YouTube -->
+    <a class="social-btn" href="YOUR_YOUTUBE_LINK_HERE" target="_blank" rel="noopener" title="YouTube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.8 5 12 5 12 5s-4.8 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9C6.8 19 12 19 12 19s4.8 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9.4l5.6 2.6-5.6 2.5z"/></svg>
+      YouTube
+    </a>
+
+    <!-- Facebook -->
+    <a class="social-btn" href="YOUR_FACEBOOK_LINK_HERE" target="_blank" rel="noopener" title="Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+      Facebook
+    </a>
+
+    <!-- TikTok -->
+    <a class="social-btn" href="YOUR_TIKTOK_LINK_HERE" target="_blank" rel="noopener" title="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.78a4.85 4.85 0 01-1.01-.09z"/></svg>
+      TikTok
+    </a>
+
+    <!-- Threads -->
+    <a class="social-btn" href="YOUR_THREADS_LINK_HERE" target="_blank" rel="noopener" title="Threads">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 012.532.158v-.533c0-.948-.037-1.962-.82-2.625-.47-.399-1.118-.594-1.967-.594-.953 0-1.875.196-2.7.57a3.42 3.42 0 00-.977.633l-1.394-1.394c.481-.48 1.078-.874 1.77-1.17 1.068-.455 2.3-.686 3.668-.686 1.27 0 2.37.262 3.271.78 1.364.788 2.077 2.118 2.077 3.848v5.67c0 .407.028.808.083 1.196.18 1.245.703 2.303 1.539 3.062C20.16 20.5 18.12 21.52 15.6 21.9c-.77.116-1.58.176-2.41.176-.67 0-1.33-.04-1.97-.12l-.026-.003zm.54-8.702c.882-.048 1.57-.368 2.046-.952.406-.499.654-1.18.741-2.026a11.06 11.06 0 00-2.361-.11c-.842.049-1.478.278-1.885.678-.363.358-.538.827-.51 1.358.03.547.283.981.75 1.287.405.264.878.39 1.22.37v-.605z"/></svg>
+      Threads
+    </a>
+
+  </div>
+
+  <!-- ── PAYMENT ── -->
+  <p class="section-label">Pembayaran</p>
+
+  <a class="link-card accent" href="YOUR_PAYMENT_LINK_HERE" target="_blank" rel="noopener">
+    <div class="card-icon" style="background: rgba(232,255,71,0.15);">💳</div>
+    <div class="card-text">
+      <div class="card-title">Buat Pembayaran</div>
+      <div class="card-sub">Pautan pembayaran selamat</div>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+  <!-- ── FOOTER ── -->
+  <p class="footer">RevvedUp Media · Tingkatkan Kemahiran, Naikkan Pendapatan 🚀</p>
+
+</div>
+</body>
+</html>
