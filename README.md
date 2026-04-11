@@ -7,7 +7,7 @@ Build faster. Post smarter. Convert better.
 
 ## 👋 About
 
-Hi, saya Aqil.
+Hi, saya QayyumAmin.
 
 Saya bina tools ini untuk bantu affiliate yang selalu stuck:
 - Tak tahu nak buat hook
