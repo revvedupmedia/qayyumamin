@@ -57,9 +57,9 @@ Ini sistem untuk bantu anda buat content lebih cepat.
 
 ## 🔗 Demo & Access
 
-👉 [Try HookCraft (Demo)](#)  
-👉 [Try AffiSnap (Demo)](#)  
-👉 [Full Access / Payment](#)
+👉 [Demo Hookcraft](https://youtube.com/shorts/kEVuEB-H-sU)  
+👉 [Demo Affisnap](#)  
+👉 [Full Access / Payment](https://revvedupmedia.github.io/payment/)
 
 ---
 
