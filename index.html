@@ -4,154 +4,425 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RevvedUp Media</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; }
 
   :root {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --border: rgba(255,255,255,0.08);
-    --border-hover: rgba(255,255,255,0.18);
-    --text: #f0ece4;
-    --muted: #7a7570;
-    --accent: #e8ff47;
-    --accent-dim: rgba(232,255,71,0.12);
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    --black:   #0a0a12;
+    --dark:    #12122a;
+    --navy:    #1a1a3e;
+    --purple:  #6b21e8;
+    --lpurple: #a855f7;
+    --yellow:  #facc15;
+    --cyan:    #22d3ee;
+    --green:   #4ade80;
+    --red:     #f87171;
+    --white:   #e8e8f0;
+    --muted:   #6b7280;
+    --pixel: 'Press Start 2P', monospace;
   }
+
+  html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--pixel);
     min-height: 100vh;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 3rem 1.25rem 4rem;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 80px;
+    overflow-x: hidden;
   }
 
-  /* subtle grain */
-  body::before {
-    content: '';
+  /* ═══════════════════════════
+     BACKGROUND — STARFIELD
+  ═══════════════════════════ */
+  #canvas-bg {
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
     z-index: 0;
+    pointer-events: none;
   }
 
-  .page { width: 100%; max-width: 440px; position: relative; z-index: 1; }
-
-  /* ── Header ── */
-  .header { text-align: center; margin-bottom: 2.5rem; }
-
-  .logo-ring {
-    width: 72px; height: 72px;
-    border-radius: 50%;
-    background: var(--accent-dim);
-    border: 1.5px solid var(--accent);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 1rem;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 22px;
-    color: var(--accent);
-    letter-spacing: -0.5px;
+  /* CRT scanlines */
+  .crt {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.10) 2px,
+      rgba(0,0,0,0.10) 4px
+    );
+    animation: crtFlicker 8s steps(1) infinite;
   }
 
-  .brand {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 22px;
-    color: var(--text);
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
+  @keyframes crtFlicker {
+    0%,100% { opacity: 1; }
+    94%      { opacity: 1; }
+    95%      { opacity: 0.85; }
+    96%      { opacity: 1; }
+    97%      { opacity: 0.9; }
+    98%      { opacity: 1; }
   }
 
-  .tagline {
-    font-size: 13px;
-    color: var(--muted);
-    font-weight: 300;
-    letter-spacing: 0.02em;
+  /* CRT vignette */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
   }
 
-  /* ── Section label ── */
-  .section-label {
+  /* ═══════════════════════════
+     PAGE WRAPPER
+  ═══════════════════════════ */
+  .page {
+    width: 100%;
+    max-width: 480px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ═══════════════════════════
+     TOP HUD BAR
+  ═══════════════════════════ */
+  .hud-bar {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--black);
+    border-bottom: 2px solid var(--purple);
+    box-shadow: 0 4px 0 rgba(107,33,232,0.3);
+  }
+
+  .hud-lives {
+    font-size: 8px;
+    color: var(--red);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .hud-score {
+    font-size: 7px;
+    color: var(--yellow);
+    text-align: center;
+  }
+
+  .hud-score span {
+    display: block;
     font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 2rem 0 0.75rem;
+    color: var(--white);
+    margin-top: 3px;
+    letter-spacing: 2px;
   }
 
-  /* ── Link card ── */
-  .link-card {
+  .hud-level {
+    font-size: 7px;
+    color: var(--cyan);
+    text-align: right;
+  }
+
+  /* ═══════════════════════════
+     HEADER / PLAYER CARD
+  ═══════════════════════════ */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  /* 8-bit sprite avatar using box-shadow */
+  .sprite-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .sprite {
+    width: 8px;
+    height: 8px;
+    position: relative;
+    /* pixel art character using box-shadow grid */
+    box-shadow:
+      /* row 1 - hat top */
+      8px 0 0 var(--yellow),   16px 0 0 var(--yellow),   24px 0 0 var(--yellow),
+      /* row 2 */
+      0 8px 0 var(--yellow),   8px 8px 0 var(--purple),  16px 8px 0 var(--purple),  24px 8px 0 var(--purple),  32px 8px 0 var(--yellow),
+      /* row 3 - face */
+      0 16px 0 var(--yellow),  8px 16px 0 #f8d8a0,       16px 16px 0 #f8d8a0,       24px 16px 0 #f8d8a0,       32px 16px 0 var(--yellow),
+      /* row 4 - eyes */
+      0 24px 0 var(--yellow),  8px 24px 0 #1a1a2e,       16px 24px 0 #f8d8a0,       24px 24px 0 #1a1a2e,       32px 24px 0 var(--yellow),
+      /* row 5 - mouth */
+      8px 32px 0 #1a1a2e,      16px 32px 0 var(--red),   24px 32px 0 #1a1a2e,
+      /* row 6 - body */
+      0 40px 0 var(--purple),  8px 40px 0 var(--lpurple),16px 40px 0 var(--lpurple),24px 40px 0 var(--lpurple), 32px 40px 0 var(--purple),
+      /* row 7 - body lower */
+      0 48px 0 var(--purple),  8px 48px 0 var(--cyan),   16px 48px 0 var(--lpurple),24px 48px 0 var(--cyan),    32px 48px 0 var(--purple),
+      /* row 8 - legs */
+      8px 56px 0 var(--navy),  16px 56px 0 var(--navy),  24px 56px 0 var(--navy),
+      /* row 9 - feet */
+      8px 64px 0 #5a3e1b, 16px 64px 0 var(--black), 24px 64px 0 #5a3e1b;
+    animation: spriteFloat 2s ease-in-out infinite;
+  }
+
+  .sprite-container {
+    padding: 16px 0 80px 0;
+  }
+
+  @keyframes spriteFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+
+  .player-name {
+    font-size: 14px;
+    color: var(--yellow);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 0 rgba(250,204,21,0.3);
+    animation: textBlink 3s steps(1) infinite;
+  }
+
+  @keyframes textBlink {
+    0%,89%,91%,100% { opacity: 1; }
+    90%             { opacity: 0.7; }
+  }
+
+  .player-class {
+    font-size: 7px;
+    color: var(--lpurple);
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  /* HP / XP bars */
+  .stat-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 auto 8px;
+    max-width: 280px;
+  }
+
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-label {
+    font-size: 7px;
+    color: var(--muted);
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  .stat-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: var(--dark);
+    border: 2px solid rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    position: relative;
+  }
+
+  .stat-bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.15) 0px,
+      rgba(255,255,255,0.15) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+  }
+
+  .bar-hp   { background: var(--green); width: 85%; animation: barGrow 1s ease both 0.3s; }
+  .bar-xp   { background: var(--cyan);  width: 62%; animation: barGrow 1s ease both 0.5s; }
+  .bar-gold { background: var(--yellow);width: 40%; animation: barGrow 1s ease both 0.7s; }
+
+  @keyframes barGrow {
+    from { width: 0; }
+  }
+
+  .stat-val {
+    font-size: 6px;
+    color: var(--white);
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ═══════════════════════════
+     SECTION LABELS
+  ═══════════════════════════ */
+  .section-label {
+    font-size: 7px;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before,
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple));
+  }
+
+  .section-label::after {
+    background: linear-gradient(90deg, var(--purple), transparent);
+  }
+
+  /* ═══════════════════════════
+     PIXEL MENU CARDS
+  ═══════════════════════════ */
+  .menu-card {
     display: flex;
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    background: var(--dark);
+    border: 2px solid var(--purple);
     text-decoration: none;
-    color: var(--text);
+    color: var(--white);
     margin-bottom: 10px;
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
     cursor: pointer;
+    position: relative;
+    transition: transform 0.1s;
+    /* pixel border shadow effect */
+    box-shadow:
+      4px 4px 0 0 rgba(107,33,232,0.5),
+      -2px 0 0 0 rgba(107,33,232,0.2),
+      0 -2px 0 0 rgba(107,33,232,0.2);
+    animation: slideIn 0.4s ease both;
   }
-  .link-card:hover {
-    border-color: var(--border-hover);
-    background: #1c1c1c;
-    transform: translateY(-1px);
+
+  .menu-card:hover {
+    border-color: var(--yellow);
+    box-shadow:
+      4px 4px 0 0 rgba(250,204,21,0.5),
+      -2px 0 0 0 rgba(250,204,21,0.2),
+      0 -2px 0 0 rgba(250,204,21,0.2);
+    transform: translate(-2px, -2px);
+    background: #1e1e40;
   }
-  .link-card:active { transform: translateY(0); }
+
+  .menu-card:hover::before {
+    content: '▶';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 8px;
+    color: var(--yellow);
+    animation: arrowBlink 0.5s steps(1) infinite;
+  }
+
+  @keyframes arrowBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  .menu-card:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 transparent; }
+
+  .menu-card.accent {
+    border-color: var(--yellow);
+    background: rgba(250,204,21,0.07);
+    box-shadow:
+      4px 4px 0 0 rgba(250,204,21,0.4),
+      -2px 0 0 0 rgba(250,204,21,0.15),
+      0 -2px 0 0 rgba(250,204,21,0.15);
+  }
+
+  .menu-card.accent .card-title { color: var(--yellow); }
+
+  .menu-card.accent:hover {
+    background: rgba(250,204,21,0.14);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .menu-card:nth-child(1) { animation-delay: 0.05s; }
+  .menu-card:nth-child(2) { animation-delay: 0.10s; }
+  .menu-card:nth-child(3) { animation-delay: 0.15s; }
+  .menu-card:nth-child(4) { animation-delay: 0.20s; }
+  .menu-card:nth-child(5) { animation-delay: 0.25s; }
 
   .card-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
     flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.08);
+    background: var(--navy);
+    image-rendering: pixelated;
   }
 
-  .card-text { flex: 1; }
+  .card-text { flex: 1; min-width: 0; }
+
   .card-title {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--text);
+    font-size: 8px;
+    color: var(--white);
+    line-height: 1.5;
+    margin-bottom: 4px;
   }
+
   .card-sub {
-    font-size: 12px;
+    font-size: 6px;
     color: var(--muted);
-    margin-top: 1px;
+    line-height: 1.6;
   }
 
   .card-arrow {
-    font-size: 16px;
-    color: var(--muted);
+    font-size: 10px;
+    color: var(--purple);
     flex-shrink: 0;
-    transition: color 0.2s, transform 0.2s;
   }
-  .link-card:hover .card-arrow { color: var(--text); transform: translateX(2px); }
 
-  /* accent card (payment) */
-  .link-card.accent {
-    background: var(--accent-dim);
-    border-color: rgba(232,255,71,0.25);
-  }
-  .link-card.accent .card-title { color: var(--accent); }
-  .link-card.accent:hover { background: rgba(232,255,71,0.18); border-color: rgba(232,255,71,0.45); }
+  .menu-card:hover .card-arrow { color: var(--yellow); }
 
-  /* ── Socials row ── */
+  /* ═══════════════════════════
+     SOCIAL BUTTONS
+  ═══════════════════════════ */
   .socials-row {
     display: flex;
-    gap: 10px;
-    margin-top: 0.5rem;
+    gap: 8px;
+    animation: slideIn 0.4s ease both 0.3s;
   }
 
   .social-btn {
@@ -160,141 +431,402 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 14px 8px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    gap: 7px;
+    padding: 12px 4px;
+    background: var(--dark);
+    border: 2px solid rgba(107,33,232,0.4);
     text-decoration: none;
     color: var(--muted);
-    font-size: 11px;
-    font-weight: 500;
-    transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.15s;
+    font-family: var(--pixel);
+    font-size: 5px;
     cursor: pointer;
+    transition: all 0.1s;
+    box-shadow: 2px 2px 0 0 rgba(107,33,232,0.25);
   }
-  .social-btn:hover {
-    border-color: var(--border-hover);
-    color: var(--text);
-    background: #1c1c1c;
-    transform: translateY(-2px);
-  }
-  .social-btn svg { width: 22px; height: 22px; }
 
-  /* ── Footer ── */
+  .social-btn:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 3px 3px 0 0 rgba(34,211,238,0.3);
+    transform: translate(-1px, -1px);
+    background: #1a1a3e;
+  }
+
+  .social-btn:active { transform: translate(1px, 1px); box-shadow: none; }
+  .social-btn svg { width: 20px; height: 20px; }
+
+  /* ═══════════════════════════
+     PRESS START BLINKING TEXT
+  ═══════════════════════════ */
+  .press-start {
+    text-align: center;
+    font-size: 8px;
+    color: var(--yellow);
+    margin-top: 36px;
+    letter-spacing: 1px;
+    animation: pressBlink 1s steps(1) infinite;
+  }
+
+  @keyframes pressBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
   .footer {
     text-align: center;
-    margin-top: 2.5rem;
-    font-size: 11px;
+    margin-top: 14px;
+    font-size: 5px;
     color: var(--muted);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
+    line-height: 2;
   }
 
-  /* ── Fade-in stagger ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
+  /* ═══════════════════════════
+     COIN POPUP ANIMATION
+  ═══════════════════════════ */
+  .coin-popup {
+    position: fixed;
+    font-size: 10px;
+    color: var(--yellow);
+    font-family: var(--pixel);
+    pointer-events: none;
+    z-index: 999;
+    animation: coinFloat 1s ease-out forwards;
+  }
+
+  @keyframes coinFloat {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .header        { animation: fadeUp 0.5s ease both; animation-delay: 0.05s; }
-  .section-label { animation: fadeUp 0.5s ease both; }
-  .link-card, .socials-row { animation: fadeUp 0.5s ease both; }
-  .link-card:nth-child(1)  { animation-delay: 0.1s; }
-  .link-card:nth-child(2)  { animation-delay: 0.15s; }
-  .link-card:nth-child(3)  { animation-delay: 0.2s; }
-  .link-card:nth-child(4)  { animation-delay: 0.25s; }
-  .socials-row              { animation-delay: 0.3s; }
+
+  /* ── LINK TRANSITION OVERLAY ── */
+  #transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    opacity: 0;
+  }
+
+  #transition-overlay.active {
+    pointer-events: all;
+    animation: flashIn 0.08s steps(1) forwards;
+  }
+
+  @keyframes flashIn {
+    0%   { opacity: 0; background: transparent; }
+    20%  { opacity: 1; background: var(--white); }
+    40%  { background: var(--yellow); }
+    60%  { background: var(--purple); }
+    80%  { background: var(--black); }
+    100% { opacity: 1; background: var(--black); }
+  }
+
+  .overlay-text {
+    font-family: var(--pixel);
+    font-size: 10px;
+    color: var(--yellow);
+    letter-spacing: 2px;
+    animation: overlayBlink 0.3s steps(1) infinite;
+    display: none;
+  }
+
+  .overlay-bar-wrap {
+    width: 200px;
+    display: none;
+  }
+
+  .overlay-bar-bg {
+    height: 12px;
+    background: var(--dark);
+    border: 2px solid var(--purple);
+  }
+
+  .overlay-bar-fill {
+    height: 100%;
+    background: var(--cyan);
+    width: 0%;
+    transition: width 0.4s steps(8);
+  }
+
+  #transition-overlay.loaded .overlay-text,
+  #transition-overlay.loaded .overlay-bar-wrap { display: block; }
+
+  @keyframes overlayBlink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0; }
+  }
 </style>
 </head>
 <body>
+
+<!-- Background canvas for starfield -->
+<canvas id="canvas-bg"></canvas>
+<div class="crt"></div>
+<div class="vignette"></div>
+
+<!-- LINK TRANSITION OVERLAY -->
+<div id="transition-overlay">
+  <p class="overlay-text">LOADING...</p>
+  <div class="overlay-bar-wrap">
+    <div class="overlay-bar-bg">
+      <div class="overlay-bar-fill" id="overlayBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HUD TOP BAR -->
+<div class="hud-bar">
+  <div class="hud-lives">❤ ❤ ❤</div>
+  <div class="hud-score">
+    SCORE
+    <span id="scoreDisplay">000000</span>
+  </div>
+  <div class="hud-level">
+    LVL<br>
+    <span style="font-size:11px; color:var(--white);">99</span>
+  </div>
+</div>
+
 <div class="page">
 
-  <!-- ── HEADER ── -->
+  <!-- HEADER -->
   <div class="header">
-    <div class="logo-ring">RM</div>
-    <p class="brand">RevvedUp Media</p>
-    <p class="tagline">Tools khas untuk bisnes anda!</p>
+    <div class="sprite-wrap">
+      <div class="sprite-container">
+        <div class="sprite"></div>
+      </div>
+    </div>
+
+    <p class="player-name">REVVED UP</p>
+    <p class="player-class">★ REVVEDUP MEDIA ★</p>
+
+
   </div>
 
-  <!-- ── DEMO APPS ── -->
-  <p class="section-label">Video Demo Penggunaan</p>
+  <p class="press-start">— PRESS ANY LINK TO CONTINUE —</p>
 
-  <a class="link-card" href="https://youtube.com/shorts/9ky6l6gzBww" target="_blank" rel="noopener">
-    <div class="card-icon" style="background: #1a1f2e;">⚡</div>
+  <!-- DEMO VIDEOS -->
+  <p class="section-label">▸ DEMO STAGE</p>
+
+  <a class="menu-card" href="https://youtube.com/shorts/9ky6l6gzBww" target="_blank" rel="noopener" onclick="handleLink(event, this, 100)">
+    <div class="card-icon">⚡</div>
     <div class="card-text">
-      <div class="card-title">AffiSnap — Demo Video</div>
-      <div class="card-sub">Lihat cara guna step-by-step</div>
+      <div class="card-title">AFFISNAP DEMO</div>
+      <div class="card-sub">▸ LIHAT CARA GUNA STEP-BY-STEP</div>
     </div>
-    <span class="card-arrow">→</span>
+    <span class="card-arrow">▶</span>
   </a>
 
-  <a class="link-card" href="https://youtube.com/shorts/3Maed6JPDJ0" target="_blank" rel="noopener">
-    <div class="card-icon" style="background: #1f1a2e;">🪝</div>
+  <a class="menu-card" href="https://youtube.com/shorts/3Maed6JPDJ0" target="_blank" rel="noopener" onclick="handleLink(event, this, 100)">
+    <div class="card-icon">🪝</div>
     <div class="card-text">
-      <div class="card-title">HookCraft — Demo Video</div>
-      <div class="card-sub">Cara generate hook dengan mudah</div>
+      <div class="card-title">HOOKCRAFT DEMO</div>
+      <div class="card-sub">▸ CARA GENERATE HOOK DENGAN MUDAH</div>
     </div>
-    <span class="card-arrow">→</span>
+    <span class="card-arrow">▶</span>
   </a>
 
-  <!-- ── AFFILIATE ── -->
-  <p class="section-label">Link Barang Best</p>
+  <!-- AFFILIATE -->
+  <p class="section-label">▸ LOOT DROP</p>
 
-  <a class="link-card" href="https://s.shopee.com.my/AADbIJZ7UD" target="_blank" rel="noopener">
-    <div class="card-icon" style="background: #1a2a1a;">🔗</div>
+  <a class="menu-card" href="https://s.shopee.com.my/AADbIJZ7UD" target="_blank" rel="noopener" onclick="handleLink(event, this, 250)">
+    <div class="card-icon">🔗</div>
     <div class="card-text">
-      <div class="card-title">Link Barang Best yang korang patut cuba</div>
-      <div class="card-sub">Sokong kami — tiada kos tambahan untuk anda</div>
+      <div class="card-title">BARANG BEST</div>
+      <div class="card-sub">▸ ITEM TERBAIK — TIADA KOS TAMBAHAN</div>
     </div>
-    <span class="card-arrow">→</span>
+    <span class="card-arrow">▶</span>
   </a>
 
-  <!-- ── SOCIALS ── -->
-  <p class="section-label">Follow Us</p>
+  <!-- SOCIALS -->
+  <p class="section-label">▸ GUILD</p>
   <div class="socials-row">
 
-
-    <!-- Telegram -->
-    <a class="social-btn" href="YOUR_TELEGRAM_LINK_HERE" target="_blank" rel="noopener" title="Telegram">
+    <a class="social-btn" href="YOUR_TELEGRAM_LINK_HERE" target="_blank" rel="noopener" onclick="handleLink(event, this, 50)">
       <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M9.04 15.56l-.38 5.33c.54 0 .77-.23 1.05-.5l2.52-2.4 5.22 3.82c.96.53 1.64.25 1.9-.88l3.45-16.18.01-.01c.32-1.5-.54-2.09-1.48-1.75L1.49 9.2C.02 9.77.04 10.6 1.25 10.97l5.62 1.75 13.05-8.22c.61-.4 1.17-.18.71.22" />
+        <path d="M9.04 15.56l-.38 5.33c.54 0 .77-.23 1.05-.5l2.52-2.4 5.22 3.82c.96.53 1.64.25 1.9-.88l3.45-16.18.01-.01c.32-1.5-.54-2.09-1.48-1.75L1.49 9.2C.02 9.77.04 10.6 1.25 10.97l5.62 1.75 13.05-8.22c.61-.4 1.17-.18.71.22"/>
       </svg>
-      Telegram
+      TG
     </a>
 
-    <!-- Facebook -->
-    <a class="social-btn" href="https://www.facebook.com/ibnamin11" target="_blank" rel="noopener" title="Facebook">
+    <a class="social-btn" href="https://www.facebook.com/ibnamin11" target="_blank" rel="noopener" onclick="handleLink(event, this, 50)">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
-      Facebook
+      FB
     </a>
 
-    <!-- TikTok -->
-    <a class="social-btn" href="https://www.tiktok.com/@gmrbah" target="_blank" rel="noopener" title="TikTok">
+    <a class="social-btn" href="https://www.tiktok.com/@gmrbah" target="_blank" rel="noopener" onclick="handleLink(event, this, 50)">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.78a4.85 4.85 0 01-1.01-.09z"/></svg>
-      TikTok
+      TT
     </a>
 
-    <!-- Threads -->
-    <a class="social-btn" href="https://www.threads.com/@qayyum.amin" target="_blank" rel="noopener" title="Threads">
+    <a class="social-btn" href="https://www.threads.com/@qayyum.amin" target="_blank" rel="noopener" onclick="handleLink(event, this, 50)">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 012.532.158v-.533c0-.948-.037-1.962-.82-2.625-.47-.399-1.118-.594-1.967-.594-.953 0-1.875.196-2.7.57a3.42 3.42 0 00-.977.633l-1.394-1.394c.481-.48 1.078-.874 1.77-1.17 1.068-.455 2.3-.686 3.668-.686 1.27 0 2.37.262 3.271.78 1.364.788 2.077 2.118 2.077 3.848v5.67c0 .407.028.808.083 1.196.18 1.245.703 2.303 1.539 3.062C20.16 20.5 18.12 21.52 15.6 21.9c-.77.116-1.58.176-2.41.176-.67 0-1.33-.04-1.97-.12l-.026-.003zm.54-8.702c.882-.048 1.57-.368 2.046-.952.406-.499.654-1.18.741-2.026a11.06 11.06 0 00-2.361-.11c-.842.049-1.478.278-1.885.678-.363.358-.538.827-.51 1.358.03.547.283.981.75 1.287.405.264.878.39 1.22.37v-.605z"/></svg>
-      Threads
+      THR
     </a>
 
   </div>
 
-  <!-- ── PAYMENT ── -->
-  <p class="section-label">Pembayaran</p>
+  <!-- PAYMENT -->
+  <p class="section-label">▸ SHOP</p>
 
-  <a class="link-card accent" href="https://revvedupmedia.github.io/payment/" target="_blank" rel="noopener">
-    <div class="card-icon" style="background: rgba(232,255,71,0.15);">💳</div>
+  <a class="menu-card accent" href="https://revvedupmedia.github.io/payment/" target="_blank" rel="noopener" onclick="handleLink(event, this, 500)">
+    <div class="card-icon">💳</div>
     <div class="card-text">
-      <div class="card-title">Buat Pembayaran</div>
-      <div class="card-sub">Pautan pembayaran selamat</div>
+      <div class="card-title">BUAT PEMBAYARAN</div>
+      <div class="card-sub">▸ PAUTAN PEMBAYARAN SELAMAT ★★★</div>
     </div>
-    <span class="card-arrow">→</span>
+    <span class="card-arrow">▶</span>
   </a>
 
-  <!-- ── FOOTER ── -->
-  <p class="footer">RevvedUp Media · Bina Content, Jana Sales 🚀</p>
+  <p class="footer">
+    © REVVEDUP MEDIA 2025<br>
+    BINA CONTENT • JANA SALES 🚀<br>
+    ALL RIGHTS RESERVED
+  </p>
 
 </div>
+
+<script>
+// ═══════════════════════
+// STARFIELD CANVAS
+// ═══════════════════════
+const canvas = document.getElementById('canvas-bg');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const STARS = [];
+const STAR_COUNT = 120;
+
+for (let i = 0; i < STAR_COUNT; i++) {
+  STARS.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    size: Math.random() < 0.15 ? 2 : 1,
+    speed: Math.random() * 0.4 + 0.05,
+    brightness: Math.random(),
+    twinkleSpeed: Math.random() * 0.04 + 0.01,
+    twinkleOffset: Math.random() * Math.PI * 2,
+  });
+}
+
+// shooting stars
+const SHOOTERS = [];
+function spawnShooter() {
+  SHOOTERS.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height * 0.5,
+    vx: (Math.random() * 4 + 3),
+    vy: (Math.random() * 2 + 1),
+    life: 1,
+    len: Math.floor(Math.random() * 6 + 4) * 8,
+  });
+}
+setInterval(spawnShooter, 3500);
+
+let t = 0;
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw stars
+  STARS.forEach(s => {
+    const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t * s.twinkleSpeed + s.twinkleOffset));
+    ctx.fillStyle = `rgba(220,210,255,${twinkle * s.brightness * 0.8})`;
+    ctx.fillRect(Math.round(s.x), Math.round(s.y), s.size, s.size);
+
+    // slow downward drift
+    s.y += s.speed * 0.1;
+    if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+  });
+
+  // Draw shooting stars (pixelated line)
+  for (let i = SHOOTERS.length - 1; i >= 0; i--) {
+    const s = SHOOTERS[i];
+    ctx.fillStyle = `rgba(255,255,200,${s.life * 0.9})`;
+    // pixel trail
+    for (let p = 0; p < s.len; p += 4) {
+      const alpha = (s.life * (1 - p / s.len)) * 0.9;
+      ctx.fillStyle = `rgba(255,255,180,${alpha})`;
+      ctx.fillRect(Math.round(s.x - s.vx * (p / 4)), Math.round(s.y - s.vy * (p / 4)), 2, 2);
+    }
+    s.x += s.vx * 2;
+    s.y += s.vy * 2;
+    s.life -= 0.025;
+    if (s.life <= 0 || s.x > canvas.width + 100) SHOOTERS.splice(i, 1);
+  }
+
+  t++;
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ═══════════════════════
+// SCORE COUNTER
+// ═══════════════════════
+let score = 0;
+const scoreEl = document.getElementById('scoreDisplay');
+const overlay  = document.getElementById('transition-overlay');
+const overlayBar = document.getElementById('overlayBar');
+
+function addScore(pts, e) {
+  score += pts;
+  scoreEl.textContent = String(score).padStart(6, '0');
+  const popup = document.createElement('div');
+  popup.className = 'coin-popup';
+  popup.textContent = '+' + pts;
+  popup.style.left = (e.clientX - 20) + 'px';
+  popup.style.top  = (e.clientY - 10) + 'px';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1000);
+}
+
+function handleLink(e, el, pts) {
+  e.preventDefault();
+  const href = el.href;
+
+  // score popup
+  addScore(pts, e);
+
+  // flash effect
+  overlay.classList.add('active');
+
+  // after flash, show loading bar
+  setTimeout(() => {
+    overlay.classList.add('loaded');
+    overlayBar.style.width = '0%';
+    // step the bar across in chunks
+    const steps = [20, 45, 65, 80, 95, 100];
+    steps.forEach((w, i) => {
+      setTimeout(() => {
+        overlayBar.style.width = w + '%';
+        if (w === 100) {
+          // open link then clear overlay
+          setTimeout(() => {
+            window.open(href, '_blank');
+            overlay.classList.remove('active', 'loaded');
+            overlayBar.style.width = '0%';
+          }, 120);
+        }
+      }, i * 80);
+    });
+  }, 380);
+}
+</script>
 </body>
 </html>
